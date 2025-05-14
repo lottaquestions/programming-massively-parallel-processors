@@ -21,7 +21,7 @@ __global__ void rgb_to_grayscale_kernel(unsigned char* __restrict__ out, unsigne
 
     int batch_idx = idx / (H * W); // Will be used in calculations of indices of both input and output,
                                    // hence why we use H * W rather than 3* H * W. We adjust for the
-                                   // missing 
+                                   // missing 3 , when calculating the offset for the input
     int pixel_idx = idx % (H * W);
     int offset = batch_idx * 3 * H * W;
 

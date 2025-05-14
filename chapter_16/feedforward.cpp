@@ -41,3 +41,22 @@ void subsamplingLayer_forward(int M, int H, int W, int K, float *Y, float *S, fl
                 S[m, h, w] = sigmoid (S[m, h, w] + b[m]);
             }
 }
+
+
+void convLayer_batched(int N, int M, int C, int H, int W, int K, float *X, float* W_f, float* Y){
+    int H_out = H - K + 1;
+    int W_out = W - K + 1;
+
+    for (int  n = 0; n < N ; n++)           // For each sample in the minibatch
+        for(int m = 0; m < M; m++)          // For each output feature map
+            for (int h = 0; h < H_out; h++) // For each output element
+                for(int w = 0; w < W_out ; w++) {
+                    Y[m, h, w] = 0;
+                    for (int c = 0; c < C; c++) // Sum over all input  feature maps (or channels)
+                        for (int p = 0; p < K; p++) // K x K filter
+                            for (int q = 0; q < K; q++) {
+                                Y[m, h, w] += X[c, h + p, w + q] * W_f[m, c, p , q];
+                            }
+                }
+
+}
