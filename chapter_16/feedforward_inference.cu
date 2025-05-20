@@ -8,6 +8,7 @@ __global__ void ConvLayerForward_Kernel(int C, int W_out, int H_out, int W_grid,
     int h = (blockIdx.y / W_grid) * TILE_WIDTH + threadIdx.y;
     int w = (blockIdx.y % W_grid) * TILE_WIDTH + threadIdx.x;
     int n = blockIdx.z; // Batch sample index
+    int M = blockDim.x; // Gives the grid dimension's X
 
     if (h >= H_out || w >= W_out) return;
 
@@ -15,11 +16,16 @@ __global__ void ConvLayerForward_Kernel(int C, int W_out, int H_out, int W_grid,
     for (int c = 0; c < C; c++){          // Sum over all input channels
         for (int p = 0; p < K; p ++) {    // Loop over K x K filter
             for (int q = 0; q < K ; q++) {
-                acc += X [n, c, h + p, w + q] * Weights [m, c, p, q]; // Fix indexing here
+                // acc += X [n, c, h + p, w + q] * Weights [m, c, p, q]; // Fix indexing here
+                acc += X[n * C * (H_out + K) * (W_out + K) + c * (H_out + K) * //
+                                                                 (W_out + K) +
+                         (h + p) * (W_out + K) + w + q] *
+                       Weights[m * C * K * K + c * K * K + p * K + q];
             }
         }
     }
-    Y[n, m, h, w] = acc;
+    //Y[n, m, h, w] = acc;
+    Y[n * M * H_out * W_out  + m * H_out * W_out +  h * W_out, w] = acc;
 }
 
 void kernelLauncher(int C, int N, int M, int W_out, int H_out, float* input, float *W, float *output){
