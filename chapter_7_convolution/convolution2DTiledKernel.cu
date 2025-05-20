@@ -7,7 +7,7 @@
 __constant__ float F_c[2 * FILTER_RADIUS + 1][2 * FILTER_RADIUS + 1]
 
 // To use this kernel, launch it with a block size whose dimensions match
-// the input tile.
+// the input tile, but with a block count that is calculated from the output tile dimension.
 __global__ void convolutionTiled2DConstMemKernel(float *N, float *P, int width, int height){
     int col = blockIdx.x * OUT_TILE_DIM + threadIdx.x - FILTER_RADIUS;
     int row = blockIdx.y * OUT_TILE_DIM + threadIdx.y - FILTER_RADIUS;
