@@ -1,3 +1,4 @@
+#include "cuda_runtime.h"
 
 #define BLOCK_DIM 8
 #define IN_TILE_DIM BLOCK_DIM
